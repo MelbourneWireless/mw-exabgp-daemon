@@ -33,14 +33,24 @@ def log(data):
 print('version')
 
 
-def execute_sql(sql, *args):
-    LOGGER.debug('SQL: %s', sql % args)
+def execute_sql(sql, *args, **kwargs):
+    query = None
     try:
         with psycopg2.connect(DSN) as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql, args)
+            try:
+                with conn.cursor() as cur:
+                    try:
+                        cur.execute(sql, args)
+                        kwargs.get('log', LOGGER.debug)('SQL: %r', cur.query)
+                    finally:
+                        query = cur.query
+            finally:
+                for notice in conn.notices:
+                    LOGGER.debug('SQL: %s', notice)
     except Exception as err:
-        LOGGER.error('%s', sql % args, exc_info=True)
+        if query is None:
+            query = [sql, args]
+        LOGGER.error('%r', query, exc_info=True)
 
 
 def route_add(peer_asn, subnet, as_path):
@@ -135,7 +145,7 @@ def on_update(address, asn, direction, message, **kwargs):
     on_update_withdraw(peer_asn, address, update)
     on_update_announce(peer_asn, address, update)
 
-    LOGGER.info('{} routes.'.format(len(ROUTES)))
+    LOGGER.debug('{} routes.'.format(len(ROUTES)))
 
 
 def on_update_announce(peer_asn, address, update):
@@ -181,7 +191,7 @@ def on_state(address, asn, state, **kwargs):
 
 def on_notification(notification):
     if notification == 'shutdown':
-        execute_sql('truncate routes')
+        execute_sql('truncate routes', log=LOGGER.warn)
 
 
 for line in fileinput.input():
