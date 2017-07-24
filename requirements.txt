@@ -4,4 +4,6 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+daiquiri==1.2.1
 exabgp==4.0.2
+psycopg2==2.7.2

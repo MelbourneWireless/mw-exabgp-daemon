@@ -1,0 +1,8 @@
+-- create domain asn as bigint; -- check (value >= 0 and value < 4294967295); -- all 1's bitmask not allowed
+
+create table routes (
+    peer_as bigint,
+    subnet cidr,
+    primary key (peer_as, subnet),
+    as_path bigint[] not null
+);
