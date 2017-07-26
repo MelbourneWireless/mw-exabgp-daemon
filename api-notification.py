@@ -18,10 +18,13 @@ daiquiri.setup(
     level=logging.DEBUG,
 )
 # using stdlib logging object, since daiquiri logger swallows unknown kwargs (eg: exc_info mistyped as log_exc)
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger(os.path.basename(__file__))
 
 
-DSN = 'postgres:///'
+# DB settings via environment: https://www.postgresql.org/docs/current/static/libpq-envars.html
+DB = psycopg2.connect('postgres:///')
+DB.autocommit = True
+
 PID = os.getpid()
 ROUTES = {}
 
@@ -32,18 +35,17 @@ print('version')
 def execute_sql(sql, *args, **kwargs):
     query = None
     try:
-        with psycopg2.connect(DSN) as conn:
-            try:
-                with conn.cursor() as cur:
-                    try:
-                        cur.execute(sql, args)
-                        kwargs.get('log', LOGGER.debug)('SQL: %r', cur.query)
-                        return cur
-                    finally:
-                        query = cur.query
-            finally:
-                for notice in conn.notices:
-                    LOGGER.debug('SQL: %s', notice)
+        try:
+            with DB.cursor() as cur:
+                try:
+                    cur.execute(sql, args)
+                    kwargs.get('log', LOGGER.debug)('SQL: %r', cur.query)
+                    return cur
+                finally:
+                    query = cur.query
+        finally:
+            for notice in DB.notices:
+                LOGGER.debug('SQL: %s', notice)
     except Exception:
         if query is None:
             query = [sql, args]
