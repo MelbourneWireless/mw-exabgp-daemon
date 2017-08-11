@@ -42,5 +42,6 @@ comment on column routes.subnet is
 comment on column routes.as_path is
 	'AS Path declared by peer';
 grant all on routes to exabgp;
+grant select on routes to anon;
 
 commit;
