@@ -150,7 +150,7 @@ def on_update(address, asn, direction, message, **kwargs):
 def on_update_announce(peer_asn, address, update):
     if 'attribute' in update and 'announce' in update:
         attribute = update['attribute']
-        as_path = attribute['as-path']
+        as_path = attribute.get('as-path', [])
 
         for _source, announcements in update.get('announce', {}).items():
             for nexthop, routes in announcements.items():
