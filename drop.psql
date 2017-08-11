@@ -1,0 +1,7 @@
+drop table routes;
+-- drop domain asn;
+drop schema v1;
+drop role provisioner;
+drop role anon;
+drop user authenticator;
+drop user exabgp;
