@@ -54,8 +54,12 @@ def execute_sql(sql, *args, **kwargs):
 
 def route_add(peer_asn, subnet, as_path):
     ROUTES.setdefault(subnet, set()).add(peer_asn)
-    execute_sql(
-        'insert into routes (peer_as, subnet, as_path) values (%s, %s, %s)',
+    execute_sql("""
+        insert into routes (peer_as, subnet, as_path)
+            values (%s, %s, %s)
+            on conflict (peer_as, subnet) do update set
+                as_path=excluded.as_path
+        """,
         peer_asn,
         subnet,
         as_path,
