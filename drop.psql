@@ -1,0 +1,6 @@
+drop table routes;
+drop schema v1;
+drop role provisioner;
+drop role anon;
+drop user authenticator;
+drop user bgpd;
