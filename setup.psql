@@ -33,19 +33,21 @@ create table routes(
     bgp_nexthop inet,
     local_pref int
 );
-comment on table routes is
-	'Advertised routes';
-comment on column routes.peer_ip_src is
-	'Peer this route advertisement came from';
-comment on column routes.subnet is
-	'Subnet/Route advertised';
-comment on column routes.as_path is
-	'AS Path declared by peer';
-comment on column routes.bgp_nexthop is
-	'Next BGP peer as declared by peer';
-comment on column routes.local_pref is
-	$$Peer's local preference for this route$$;
 grant all on routes to bgpd;
-grant select on routes to anon;
+
+create view v1.routes as select * from routes;
+comment on view v1.routes is
+	'Advertised routes';
+comment on column v1.routes.peer_ip_src is
+	'Peer this route advertisement came from';
+comment on column v1.routes.subnet is
+	'Subnet/Route advertised';
+comment on column v1.routes.as_path is
+	'AS Path declared by peer';
+comment on column v1.routes.bgp_nexthop is
+	'Next BGP peer as declared by peer';
+comment on column v1.routes.local_pref is
+	$$Peer's local preference for this route$$;
+grant select on v1.routes to anon;
 
 commit;
